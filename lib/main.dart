@@ -37,7 +37,7 @@ void main() {
 abstract class Mediator {
   void addBuyer(Buyer buyer);
   void findHighestBidder();
-  void notify(Buyer buyer, String event);
+  void notify(Buyer buyer, Event event);
 }
 
 /*holds a list of buyers*/
@@ -58,10 +58,10 @@ class AuctionMediator implements Mediator {
   }
 
   @override
-  void notify(Buyer buyer, String event) {
-    if (event == 'bid') {
+  void notify(Buyer buyer, Event event) {
+    if (event is BidEvent) {
       buyers.where((e) => e == buyer).toList();
-    } else if (event == 'cancel') {
+    } else if (event is CancelBidEvent) {
       buyers.where((e) => e == buyer).toList();
     }
   }
@@ -77,7 +77,7 @@ abstract class Buyer {
   get bid => price;
   setBid(int _price) {
     price = _price;
-    mediator.notify(this, 'bid');
+    mediator.notify(this, BidEvent());
   }
 
   void cancelBid();
@@ -89,6 +89,12 @@ class AuctionBuyer extends Buyer {
   @override
   void cancelBid() {
     price = 0;
-    mediator.notify(this, 'cancel');
+    mediator.notify(this, CancelBidEvent());
   }
 }
+
+abstract class Event {}
+
+class BidEvent extends Event {}
+
+class CancelBidEvent extends Event {}
